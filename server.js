@@ -20,8 +20,9 @@ let db = {
             services: ['Haircut', 'Beard Trim'],
             products: 'L\'Oreal, Moroccanoil',
             rating: 4.8,
-            distance: '1.2 km',
-            status: 'Available Now'
+            status: 'Available Now',
+            lat: 19.0600, // Bandra West approximate
+            lng: 72.8360
         },
         {
             id: 'salon_2',
@@ -30,8 +31,9 @@ let db = {
             services: ['Spa', 'Facial'],
             products: 'Olaplex',
             rating: 4.6,
-            distance: '2.0 km',
-            status: 'Filling Up'
+            status: 'Filling Up',
+            lat: 19.0800, // Santacruz approximate
+            lng: 72.8400
         }
     ],
     staff: [
@@ -50,7 +52,37 @@ let db = {
 
 // Get all salons (Discovery View)
 app.get('/api/salons', (req, res) => {
-    res.json(db.salons);
+    let result = [...db.salons];
+    const userLat = parseFloat(req.query.lat);
+    const userLng = parseFloat(req.query.lng);
+
+    if (!isNaN(userLat) && !isNaN(userLng)) {
+        // Calculate distance for each salon using Haversine formula
+        result = result.map(salon => {
+            const R = 6371; // Earth's radius in km
+            const dLat = (salon.lat - userLat) * Math.PI / 180;
+            const dLng = (salon.lng - userLng) * Math.PI / 180;
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                      Math.cos(userLat * Math.PI / 180) * Math.cos(salon.lat * Math.PI / 180) *
+                      Math.sin(dLng/2) * Math.sin(dLng/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            const distanceKm = R * c;
+            
+            return {
+                ...salon,
+                distanceVal: distanceKm,
+                distance: distanceKm.toFixed(1) + ' km'
+            };
+        });
+
+        // Sort by closest distance
+        result.sort((a, b) => a.distanceVal - b.distanceVal);
+    } else {
+        // Fallback distance string if no location provided
+        result = result.map(salon => ({ ...salon, distance: 'Distance unknown' }));
+    }
+
+    res.json(result);
 });
 
 // Register a new salon
@@ -62,8 +94,9 @@ app.post('/api/salons', (req, res) => {
         services: req.body.services || [],
         products: req.body.products || '',
         rating: 5.0,
-        distance: '0.0 km',
-        status: 'Available Now'
+        status: 'Available Now',
+        lat: req.body.lat || 19.0760, // Default to Mumbai center if not provided
+        lng: req.body.lng || 72.8777
     };
     db.salons.push(newSalon);
     

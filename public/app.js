@@ -33,17 +33,24 @@ function navigateTo(screenId) {
 let appState = {
     currentSalonId: 'salon_1', // Default for demo
     selectedSlot: null,
-    selectedService: 'Classic Haircut'
+    selectedService: 'Classic Haircut',
+    userLat: null,
+    userLng: null,
+    salonsData: [] // Cache for map pins
 };
+
+let mapInstance = null;
 
 // ==========================
 // RENDERERS & API INTEGRATION
 // ==========================
 
 // 1. User Home: Load Salons
-async function loadSalons() {
+async function loadSalons(lat = null, lng = null) {
     try {
-        const salons = await api.getSalons();
+        const salons = await api.getSalons(lat, lng);
+        appState.salonsData = salons; // Cache it
+        
         const listEl = document.getElementById('user-salon-list');
         listEl.innerHTML = '';
         
@@ -258,11 +265,96 @@ function addInteractionEffects(elements) {
 }
 
 // ==========================
+// GEOLOCATION & MAP LOGIC
+// ==========================
+
+async function reverseGeocode(lat, lng) {
+    try {
+        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=10`);
+        const data = await res.json();
+        const locationTitle = document.querySelector('#screen-user-home .elegant-title');
+        if (data && data.address) {
+            const city = data.address.city || data.address.town || data.address.village || data.address.county || "Unknown";
+            locationTitle.textContent = city;
+        }
+    } catch(e) {
+        console.error("Reverse geocoding failed", e);
+    }
+}
+
+function initGeolocation() {
+    if ("geolocation" in navigator) {
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                appState.userLat = position.coords.latitude;
+                appState.userLng = position.coords.longitude;
+                reverseGeocode(appState.userLat, appState.userLng);
+                loadSalons(appState.userLat, appState.userLng);
+            },
+            (error) => {
+                console.warn("Geolocation denied/failed. Loading default salons.", error);
+                loadSalons();
+            },
+            { timeout: 10000 }
+        );
+    } else {
+        loadSalons();
+    }
+}
+
+function toggleMap() {
+    const container = document.getElementById('map-container');
+    const isHidden = container.style.display === 'none';
+    
+    if (isHidden) {
+        container.style.display = 'block';
+        if (!mapInstance) {
+            // Initialize map
+            const centerLat = appState.userLat || 19.0760; // fallback to Mumbai
+            const centerLng = appState.userLng || 72.8777;
+            
+            mapInstance = L.map('salon-map').setView([centerLat, centerLng], 12);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; OpenStreetMap'
+            }).addTo(mapInstance);
+            
+            // Add User Marker if loc available
+            if (appState.userLat) {
+                L.marker([appState.userLat, appState.userLng]).addTo(mapInstance)
+                 .bindPopup('<b>You are here</b>').openPopup();
+            }
+
+            // Add Salon Markers
+            appState.salonsData.forEach(salon => {
+                if(salon.lat && salon.lng) {
+                    L.circleMarker([salon.lat, salon.lng], {
+                        color: salon.status.includes('Available') ? '#22c55e' : '#f97316',
+                        radius: 8,
+                        fillOpacity: 0.8
+                    }).addTo(mapInstance)
+                    .bindPopup(`<b>${salon.name}</b><br>${salon.distance}`);
+                }
+            });
+        } else {
+            // Give Leaflet a moment to recalculate its size after being shown
+            setTimeout(() => { mapInstance.invalidateSize(); }, 100);
+        }
+    } else {
+        container.style.display = 'none';
+    }
+}
+
+// ==========================
 // INITIALIZATION
 // ==========================
 document.addEventListener('DOMContentLoaded', () => {
     
     addInteractionEffects(document.querySelectorAll('.btn, .pill, .slot, .date-item'));
+
+    // Hook up map toggle
+    const mapBtn = document.getElementById('toggle-map-btn');
+    if (mapBtn) mapBtn.onclick = toggleMap;
 
     // Hook up Continue button in slot selection
     const btnContinue = document.querySelector('#screen-select-slot .btn-primary');
@@ -279,7 +371,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Initial Data Loads
-    loadSalons();
+    initGeolocation();
     loadOwnerDashboard(appState.currentSalonId);
 });
 

@@ -3,8 +3,10 @@ const API_URL = 'http://localhost:3000/api';
 
 const api = {
     // Salons
-    getSalons: async () => {
-        const res = await fetch(`${API_URL}/salons`);
+    getSalons: async (lat, lng) => {
+        let url = `${API_URL}/salons`;
+        if (lat && lng) url += `?lat=${lat}&lng=${lng}`;
+        const res = await fetch(url);
         return await res.json();
     },
     registerSalon: async (data) => {
