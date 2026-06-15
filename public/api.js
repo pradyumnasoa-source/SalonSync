@@ -1,5 +1,5 @@
 // Frontend API Service
-const API_URL = 'http://localhost:3000/api';
+const API_URL = '/api';
 
 const api = {
     // Salons

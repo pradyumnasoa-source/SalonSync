@@ -45,6 +45,12 @@ let mapInstance = null;
 // RENDERERS & API INTEGRATION
 // ==========================
 
+// Load booking options when a salon is selected
+function loadBookingOptions(salonId) {
+    // Future: dynamically populate staff/slot options for the selected salon
+    console.log('Loading booking options for salon:', salonId);
+}
+
 // 1. User Home: Load Salons
 async function loadSalons(lat = null, lng = null) {
     try {
@@ -183,7 +189,7 @@ if(registerForm) {
             loadOwnerDashboard(newSalon.id);
             
             // Reload user salons in background so it's updated for user view
-            loadSalons();
+            loadSalons(appState.userLat, appState.userLng);
         } catch (e) {
             console.error("Failed to register", e);
         }
@@ -200,7 +206,12 @@ async function confirmBooking() {
             time: '10:40 AM'
         };
         
-        await api.createBooking(data);
+        const booking = await api.createBooking(data);
+        
+        // Dynamically update confirmation screen with real booking data
+        const refEl = document.querySelector('.ref-number');
+        if (refEl) refEl.textContent = booking.id;
+        
         navigateTo('screen-booking-confirmed');
         // Refresh owner view silently
         loadOwnerDashboard(appState.currentSalonId);
