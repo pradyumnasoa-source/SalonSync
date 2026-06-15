@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SalonSync</title>
+    <!-- Fonts: Inter for UI, Playfair Display for elegant headers -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;1,600&display=swap" rel="stylesheet">
+    <!-- Google Material Symbols -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Theme Toggle (Floating) -->
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle Theme">
+        <span class="material-symbols-rounded">light_mode</span>
+    </button>
+
+    <!-- App Container -->
+    <main class="app-container">
+        
+        <!-- Screen 0: Landing Screen -->
+        <section id="screen-landing" class="screen active center-content">
+            <div class="avatar logo-avatar" style="width: 80px; height: 80px; font-size: 2.5rem; margin-bottom: 1.5rem;">S</div>
+            <h1 class="elegant-title text-center">SalonSync</h1>
+            <p class="subtitle text-center mt-sm mb-xl">Book salons with cinematic calm.</p>
+
+            <div class="w-full flex-col gap-md mt-xl">
+                <button class="btn btn-primary w-full" onclick="navigateTo('screen-user-home')">Continue as Customer</button>
+                <div class="divider-horizontal my-md text-center" style="position: relative;">
+                    <span style="position: absolute; top: -10px; background: var(--bg-app); padding: 0 10px; color: var(--text-muted); font-size: 0.8rem; left: 50%; transform: translateX(-50%);">OR</span>
+                </div>
+                <button class="btn btn-secondary w-full" onclick="navigateTo('screen-owner-registration')">Register as Salon Owner</button>
+                <button class="btn btn-text w-full mt-sm" onclick="navigateTo('screen-owner-dashboard')">Owner Login (Demo)</button>
+            </div>
+        </section>
+
+        <!-- Screen 0.5: Owner Registration -->
+        <section id="screen-owner-registration" class="screen">
+            <header class="app-header align-start flex-col">
+                <button class="btn-icon mb-md" onclick="navigateTo('screen-landing')"><span class="material-symbols-rounded">arrow_back</span></button>
+                <div class="header-row w-full">
+                    <h1 class="elegant-title">Partner with us</h1>
+                </div>
+                <p class="subtitle mt-sm">Register your salon to join the network.</p>
+            </header>
+
+            <form id="registration-form" class="mt-lg flex-col gap-md" onsubmit="event.preventDefault(); navigateTo('screen-owner-dashboard');">
+                
+                <div class="form-group">
+                    <label class="form-label">Salon Name</label>
+                    <input type="text" class="form-input" placeholder="e.g. Urban Pro" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Business License Number</label>
+                    <input type="text" class="form-input" placeholder="Enter license / registration id" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Services Offered</label>
+                    <p class="subtitle-small mb-sm">Select all that apply</p>
+                    <div class="pill-wrap-container">
+                        <button type="button" class="pill active selectable-pill">Haircut</button>
+                        <button type="button" class="pill selectable-pill">Spa</button>
+                        <button type="button" class="pill selectable-pill">Color</button>
+                        <button type="button" class="pill active selectable-pill">Beard Trim</button>
+                        <button type="button" class="pill selectable-pill">Facial</button>
+                        <button type="button" class="pill selectable-pill">Massage</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Products Used / Sold</label>
+                    <textarea class="form-input form-textarea" placeholder="List products, brands, or special treatments..."></textarea>
+                </div>
+
+                <div class="bottom-action-container mt-xl">
+                    <button type="submit" class="btn btn-primary w-full">Complete Registration</button>
+                </div>
+            </form>
+        </section>
+
+        <!-- Screen 1: Owner Dashboard (P3) -->
+        <section id="screen-owner-dashboard" class="screen">
+            <!-- Header -->
+            <header class="app-header">
+                <div class="header-left">
+                    <div class="avatar logo-avatar">S</div>
+                    <div class="header-titles">
+                        <h1 class="elegant-title">Live Floor</h1>
+                        <p class="subtitle">Urban Trim Studio &middot; Today</p>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <span class="tag tag-outline">Owner</span>
+                </div>
+            </header>
+
+            <!-- Stats Bar -->
+            <div class="stats-bar">
+                <div class="stat-item">
+                    <span class="stat-value">18</span>
+                    <span class="stat-label">Bookings</span>
+                </div>
+                <div class="divider-vertical"></div>
+                <div class="stat-item">
+                    <span class="stat-value">11</span>
+                    <span class="stat-label">Done</span>
+                </div>
+                <div class="divider-vertical"></div>
+                <div class="stat-item">
+                    <span class="stat-value">5</span>
+                    <span class="stat-label">Upcoming</span>
+                </div>
+            </div>
+
+            <!-- Staff Status Section -->
+            <div class="section-header">
+                <div>
+                    <h2>Staff status</h2>
+                    <p class="subtitle-small">Real-time barber availability</p>
+                </div>
+                <span class="tag tag-green" id="owner-staff-free-count">0 free</span>
+            </div>
+
+            <div class="cards-list" id="owner-staff-list">
+                <!-- Dynamically populated -->
+            </div>
+
+            <!-- Peak Hours Section -->
+            <div class="section-header mt-lg">
+                <div>
+                    <h2>Peak hours</h2>
+                    <p class="subtitle-small">Bookings by hour</p>
+                </div>
+                <span class="tag tag-outline">Today</span>
+            </div>
+            
+            <div class="chart-container">
+                <div class="chart-bars">
+                    <div class="bar" style="height: 30%"></div>
+                    <div class="bar" style="height: 60%"></div>
+                    <div class="bar active" style="height: 100%"></div>
+                    <div class="bar" style="height: 40%"></div>
+                    <div class="bar" style="height: 20%"></div>
+                </div>
+                <div class="chart-labels">
+                    <span>9am</span>
+                    <span>11am</span>
+                    <span>1pm</span>
+                    <span>3pm</span>
+                    <span>5pm</span>
+                </div>
+            </div>
+
+            <!-- Owner Bottom Navigation -->
+            <nav class="bottom-nav">
+                <button class="nav-item active" onclick="navigateTo('screen-owner-dashboard')">
+                    <span class="nav-label">Live Floor</span>
+                </button>
+                <button class="nav-item" onclick="navigateTo('screen-owner-bookings')">
+                    <span class="nav-label">Bookings</span>
+                </button>
+                <button class="nav-item">
+                    <span class="nav-label">Staff</span>
+                </button>
+                <button class="nav-item" onclick="navigateTo('screen-user-home')">
+                    <span class="nav-label">Switch to User</span>
+                </button>
+            </nav>
+        </section>
+
+        <!-- Screen: Owner Bookings Management -->
+        <section id="screen-owner-bookings" class="screen">
+            <!-- Header -->
+            <header class="app-header">
+                <div class="header-left">
+                    <div class="header-titles">
+                        <h1 class="elegant-title">Bookings</h1>
+                        <p class="subtitle">Urban Trim Studio &middot; Today</p>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <span class="tag tag-outline">Owner</span>
+                </div>
+            </header>
+
+            <!-- Bookings List -->
+            <div class="cards-list mt-md" id="owner-bookings-list">
+                <!-- Dynamically populated -->
+            </div>
+
+            <!-- Owner Bottom Navigation -->
+            <nav class="bottom-nav">
+                <button class="nav-item" onclick="navigateTo('screen-owner-dashboard')">
+                    <span class="nav-label">Live Floor</span>
+                </button>
+                <button class="nav-item active" onclick="navigateTo('screen-owner-bookings')">
+                    <span class="nav-label">Bookings</span>
+                </button>
+                <button class="nav-item">
+                    <span class="nav-label">Staff</span>
+                </button>
+                <button class="nav-item" onclick="navigateTo('screen-user-home')">
+                    <span class="nav-label">Switch to User</span>
+                </button>
+            </nav>
+        </section>
+
+        <!-- Screen 2: User Home / Discovery (U3) -->
+        <section id="screen-user-home" class="screen">
+            <!-- Header -->
+            <header class="app-header">
+                <div class="header-left">
+                    <div class="header-titles">
+                        <p class="subtitle">Current location</p>
+                        <h1 class="elegant-title">Bandra West</h1>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <button class="btn-icon">Map</button>
+                </div>
+            </header>
+
+            <!-- Search -->
+            <div class="search-container">
+                <span class="material-symbols-rounded search-icon">search</span>
+                <input type="text" placeholder="Search salons, services, or city" class="search-input">
+            </div>
+
+            <!-- Filter Pills -->
+            <div class="pill-scroll-container">
+                <button class="pill active">Haircut</button>
+                <button class="pill">Spa</button>
+                <button class="pill">Color</button>
+                <button class="pill">Beard</button>
+            </div>
+
+            <!-- Salon Cards -->
+            <div class="cards-list mt-md" id="user-salon-list">
+                <!-- Dynamically populated -->
+            </div>
+
+            <!-- Bottom Navigation -->
+            <nav class="bottom-nav">
+                <button class="nav-item active">
+                    <span class="nav-label">Home</span>
+                </button>
+                <button class="nav-item">
+                    <span class="nav-label">Search</span>
+                </button>
+                <button class="nav-item">
+                    <span class="nav-label">Bookings</span>
+                </button>
+                <button class="nav-item">
+                    <span class="nav-label">Profile</span>
+                </button>
+            </nav>
+        </section>
+
+        <!-- Screen 3: Date & Time Slot Selection (U6) -->
+        <section id="screen-select-slot" class="screen">
+            <header class="app-header align-start flex-col">
+                <p class="subtitle">Step 2 of 3</p>
+                <div class="header-row w-full">
+                    <h1 class="elegant-title">Select a slot</h1>
+                    <span class="tag tag-outline">Classic Haircut</span>
+                </div>
+            </header>
+
+            <!-- Date Selector -->
+            <div class="date-scroll-container">
+                <div class="date-item active">
+                    <span class="day">Today</span>
+                    <span class="date">14 Jun</span>
+                </div>
+                <div class="date-item">
+                    <span class="day">Mon</span>
+                    <span class="date">15 Jun</span>
+                </div>
+                <div class="date-item">
+                    <span class="day">Tue</span>
+                    <span class="date">16 Jun</span>
+                </div>
+                <div class="date-item">
+                    <span class="day">Wed</span>
+                    <span class="date">17 Jun</span>
+                </div>
+            </div>
+
+            <!-- Morning Slots -->
+            <div class="section-header mt-md">
+                <div>
+                    <h2>Morning</h2>
+                    <p class="subtitle-small">Green available, amber means 1 slot left</p>
+                </div>
+                <span class="tag tag-green-outline">Live</span>
+            </div>
+
+            <div class="slots-grid">
+                <button class="slot disabled">10:00</button>
+                <button class="slot active">10:40</button>
+                <button class="slot available">11:20</button>
+                <button class="slot limited">12:00</button>
+                <button class="slot available">12:40</button>
+                <button class="slot disabled">1:20</button>
+            </div>
+
+            <!-- Barber Preference -->
+            <div class="section-header mt-lg">
+                <h2>Barber preference</h2>
+            </div>
+
+            <div class="cards-list mt-sm">
+                <div class="glass-card staff-card selectable active">
+                    <div class="avatar avatar-md gray-bg">AA</div>
+                    <div class="staff-info">
+                        <h3>Any Available</h3>
+                        <p>Fastest confirmed assignment</p>
+                    </div>
+                    <span class="tag tag-green-text">Recommended</span>
+                </div>
+                <div class="glass-card staff-card selectable">
+                    <div class="avatar avatar-md gray-bg">AR</div>
+                    <div class="staff-info">
+                        <h3>Arjun Rao</h3>
+                        <p>Available at 10:40 AM</p>
+                    </div>
+                    <span class="tag tag-orange-text">1 left</span>
+                </div>
+            </div>
+
+            <!-- Bottom Action Button -->
+            <div class="bottom-action-container">
+                <button class="btn btn-primary w-full" onclick="navigateTo('screen-booking-confirmed')">Continue</button>
+                <button class="btn btn-text w-full mt-sm" onclick="navigateTo('screen-user-home')">Back</button>
+            </div>
+        </section>
+
+        <!-- Screen 4: Booking Confirmed (U8) -->
+        <section id="screen-booking-confirmed" class="screen center-content">
+            <div class="success-icon-container">
+                <span class="material-symbols-rounded success-check">check</span>
+            </div>
+            
+            <h1 class="elegant-title text-center mt-lg">Booking<br>confirmed.</h1>
+            <p class="subtitle text-center mt-md max-w-sm">SMS sent to your mobile number with all appointment details.</p>
+
+            <div class="glass-card receipt-card mt-xl">
+                <div class="receipt-header">
+                    <div>
+                        <p class="subtitle-small">Booking ref</p>
+                        <h2 class="ref-number">SS-2841</h2>
+                    </div>
+                    <span class="tag tag-green-outline">Confirmed</span>
+                </div>
+                <div class="divider-horizontal"></div>
+                <div class="receipt-details">
+                    <div class="detail-row">
+                        <span class="detail-label">Salon</span>
+                        <span class="detail-value">Urban Trim Studio</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Service</span>
+                        <span class="detail-value">Classic Haircut</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Time</span>
+                        <span class="detail-value">Today, 10:40 AM</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Barber</span>
+                        <span class="detail-value">Arjun Rao</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bottom-action-container w-full static-bottom mt-xl">
+                <button class="btn btn-primary w-full">View My Bookings</button>
+                <button class="btn btn-secondary w-full mt-md" onclick="navigateTo('screen-user-home')">Back to Home</button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Staff Status Modal (Bottom Sheet) -->
+    <dialog id="modal-staff-status" class="bottom-sheet">
+        <div class="sheet-content glass-card">
+            <div class="sheet-handle"></div>
+            <h2 class="mt-sm mb-md" id="modal-staff-name">Update Status</h2>
+            <div class="cards-list mb-lg">
+                <button class="glass-card w-full text-left selectable" data-status="Available" onclick="updateStaffStatus('Available', 'tag-green')">
+                    <div class="flex-row align-center gap-sm">
+                        <span class="tag tag-green">Available</span>
+                        <span class="subtitle-small ml-auto">Ready for walk-ins</span>
+                    </div>
+                </button>
+                <button class="glass-card w-full text-left selectable" data-status="In Service" onclick="updateStaffStatus('In Service', 'tag-red')">
+                    <div class="flex-row align-center gap-sm">
+                        <span class="tag tag-red">In Service</span>
+                        <span class="subtitle-small ml-auto">Currently busy</span>
+                    </div>
+                </button>
+                <button class="glass-card w-full text-left selectable" data-status="On Break" onclick="updateStaffStatus('On Break', 'tag-orange')">
+                    <div class="flex-row align-center gap-sm">
+                        <span class="tag tag-orange">On Break</span>
+                    </div>
+                </button>
+                <button class="glass-card w-full text-left selectable" data-status="Off Duty" onclick="updateStaffStatus('Off Duty', 'tag-outline')">
+                    <div class="flex-row align-center gap-sm">
+                        <span class="tag tag-outline">Off Duty</span>
+                    </div>
+                </button>
+            </div>
+            <button class="btn btn-secondary w-full" onclick="closeStaffModal()">Cancel</button>
+        </div>
+    </dialog>
+
+    <script src="api.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
