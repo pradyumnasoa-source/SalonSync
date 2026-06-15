@@ -128,6 +128,6 @@ module.exports = app;
 // Only start the local server if we aren't in a serverless environment
 if (process.env.NODE_ENV !== 'production') {
     app.listen(PORT, () => {
-        console.log(`SalonSync Backend running on http://localhost:${PORT}`);
+        console.log(`BookMySalon Backend running on http://localhost:${PORT}`);
     });
 }
