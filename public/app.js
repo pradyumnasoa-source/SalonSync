@@ -73,7 +73,7 @@ async function loadSalons(lat = null, lng = null) {
             };
             
             card.innerHTML = `
-                <div class="salon-image ${gradientClass}"></div>
+                <div class="salon-image" style="background-image: url('${salon.image}'); background-size: cover; background-position: center;"></div>
                 <div class="salon-details">
                     <div class="salon-title-row">
                         <h3>${salon.name}</h3>

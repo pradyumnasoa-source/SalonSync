@@ -21,6 +21,7 @@ let db = {
             products: 'L\'Oreal, Moroccanoil',
             rating: 4.8,
             status: 'Available Now',
+            image: '/images/salon_1.png',
             lat: 19.0600, // Bandra West approximate
             lng: 72.8360
         },
@@ -32,6 +33,7 @@ let db = {
             products: 'Olaplex',
             rating: 4.6,
             status: 'Filling Up',
+            image: '/images/salon_2.png',
             lat: 19.0800, // Santacruz approximate
             lng: 72.8400
         }
@@ -95,6 +97,7 @@ app.post('/api/salons', (req, res) => {
         products: req.body.products || '',
         rating: 5.0,
         status: 'Available Now',
+        image: '/images/salon_3.png',
         lat: req.body.lat || 19.0760, // Default to Mumbai center if not provided
         lng: req.body.lng || 72.8777
     };
